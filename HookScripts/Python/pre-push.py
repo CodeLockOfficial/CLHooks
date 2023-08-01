@@ -120,19 +120,17 @@ def main():
                     print("Incorrect OTP!")
                     sys.exit(1)
         print("Authentication successful!")
-        # Get the user_id
+
     user_id = response_data.get("user_id")
 
-    # Get the branch being pushed
+
     branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).decode('utf-8').strip()
 
-    # Get the repository URL
+
     repo_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode('utf-8').strip()
 
-    # Assuming you get the commit id being pushed as an argument to this script
     local_sha = sys.argv[1]
 
-    # Create the JSON body for the hook trigger
     hook_trigger_payload = {
         "user_id": user_id,
         "branch": branch,
@@ -140,14 +138,14 @@ def main():
         "commit_id": local_sha
     }
 
-    # Trigger the hook
+
     hook_trigger_response = requests.post('https://api.codelock.ai/api/v1/trigger-git-hook', json=hook_trigger_payload)
 
     if hook_trigger_response.status_code != 200:
         print(f"Error triggering git hook: {hook_trigger_response.text}")
         return 1
 
-    # If the user is verified, or if they just verified themselves, allow the push to go through
+ 
     return 0
     
     sys.exit(app.exec_())
