@@ -1,7 +1,7 @@
 import subprocess
 import sys
-import json
 import pkg_resources
+import json
 
 REQUIRED_PACKAGES = [
     'requests',
@@ -10,13 +10,13 @@ REQUIRED_PACKAGES = [
 ]
 
 def install_missing_packages():
-    installed_packages = pkg_resources.working_set
-    installed_packages_list = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
+    installed_packages = {pkg.key for pkg in pkg_resources.working_set}
     for package in REQUIRED_PACKAGES:
-        if package not in installed_packages_list:
+        if package not in installed_packages:
             subprocess.check_call([sys.executable, "-m", "pip", "install", package], stdout=subprocess.DEVNULL)
 
 install_missing_packages()
+
 
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QDialog, QFormLayout, QDialogButtonBox
 import requests
