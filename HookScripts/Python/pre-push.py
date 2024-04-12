@@ -8,7 +8,6 @@ REQUIRED_PACKAGES = [
     'requests',
     'PyQt5',
     'gitpython',
-    'pyqt5-tools',
 ]
 
 def install_missing_packages():
@@ -16,7 +15,7 @@ def install_missing_packages():
     installed_packages = {pkg.key for pkg in pkg_resources.working_set}
     for package in REQUIRED_PACKAGES:
         if package not in installed_packages:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package], stdout=subprocess.DEVNULL)
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", package], stdout=subprocess.DEVNULL)
 
 install_missing_packages()
 
@@ -240,7 +239,7 @@ def main():
             if response.status_code == 200:
                 response_data = response.json()
             else:
-                print(f"Request failed with status {response.status_code}.")
+                print(f"Request failed with status {response.status_code}. Please ensure user credentials are correct.")
 
             if 'user_id' not in response_data:
                 login_dialog.show_error("Authentication failed! Incorrect password or details.")
