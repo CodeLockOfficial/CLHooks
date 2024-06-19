@@ -3,7 +3,9 @@ import sys
 import pkg_resources
 import json
 import webbrowser
-
+import os
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+subprocess.check_call([sys.executable, "--version"])
 REQUIRED_PACKAGES = [
     'requests',
     'PyQt5',
@@ -29,6 +31,8 @@ import requests
 from git import Repo
 from io import BytesIO
 from urllib.request import urlopen
+
+api_url = "https://api.codelock.ai/api/v1"
 
 class LoginDialog(QDialog):
     def __init__(self, parent=None):
@@ -59,10 +63,8 @@ class LoginDialog(QDialog):
         self.setWindowIcon(self.get_icon_from_url("https://github.com/CodeLockOfficial/CLHooks/blob/main/codelocklogo.png?raw=true"))
 
 
-        # Main Layout
         main_layout = QVBoxLayout()
 
-        # Logo and Text
         main_layout.addWidget(self.logo_widget)
 
         self.username_line_edit = QLineEdit()
@@ -84,13 +86,11 @@ class LoginDialog(QDialog):
 
 
 
-        # Form Layout
         form_layout = QFormLayout()
         company_label = QLabel("Company ID:")
         email_label = QLabel("Email:")
         password_label = QLabel("Password:")
 
-        # Set the text color to white for the labels using style sheets
         company_label.setStyleSheet("color: white; font-family: 'Arial'; font-weight: bold; font-size: 13px;")
         email_label.setStyleSheet("color: white; font-family: 'Arial'; font-weight: bold; font-size: 13px;")
         password_label.setStyleSheet("color: white; font-family: 'Arial'; font-weight: bold; font-size: 12px;")
@@ -101,15 +101,13 @@ class LoginDialog(QDialog):
 
         self.show_password_checkbox = QCheckBox("Show Password")
         self.show_password_checkbox.setStyleSheet("QCheckBox { color: white; }")
-        self.show_password_checkbox.setChecked(False)  # Initial state
-        # Connect other functionality if you had any for this checkbox
+        self.show_password_checkbox.setChecked(False)  
         self.show_password_checkbox.stateChanged.connect(self.toggle_password_visibility)
 
         form_layout.addRow(self.show_password_checkbox)
 
         main_layout.addLayout(form_layout)
 
-        # Button Layout
         button_layout = QHBoxLayout()
         ok_button = QPushButton("Login")
         ok_button.setStyleSheet("background-color: #3898ec; color: white;")
@@ -163,7 +161,7 @@ class OTPDialog(QDialog):
         super(OTPDialog, self).__init__(parent)
         print("OTPDialog init")
         self.setWindowTitle("OTP")
-        self.setStyleSheet("background-color: #0e1425;")  # Set the background color here
+        self.setStyleSheet("background-color: #0e1425;")
 
         self.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint |
                             QtCore.Qt.WindowCloseButtonHint |
@@ -234,7 +232,7 @@ def main():
                 "repository_id": repo_url,
             }
 
-            response = requests.post('https://api.codelock.ai/api/v1/verify-hook', json=post_params)
+            response = requests.post(f'{api_url}/verify-hook', json=post_params)
             response_data = ""
             if response.status_code == 200:
                 response_data = response.json()
@@ -255,7 +253,7 @@ def main():
                         "otp": otp,
                         "repository_id": repo_url
                     }
-                    otp_response = requests.post('https://api.codelock.ai/api/v1/verify-hook-otp', json=otp_json)
+                    otp_response = requests.post(f'{api_url}/verify-hook-otp', json=otp_json)
                     otp_response_data = otp_response.json()
                     if otp_response_data.get('code', 1) != 0:
                         print("Incorrect OTP!")
@@ -272,17 +270,19 @@ def main():
     repo_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode('utf-8').strip()
 
     local_sha = sys.argv[1]
+    commit_message = sys.argv[2]
 
     hook_trigger_payload = {
         "user_id": user_id,
         "branch": branch,
         "repository_id": repo_url,
         "commit_id": local_sha,
-        "accountId": company_id
+        "accountId": company_id,
+        "commitMessage": commit_message
     }
 
 
-    hook_trigger_response = requests.post('https://api.codelock.ai/api/v1/trigger-git-hook', json=hook_trigger_payload)
+    hook_trigger_response = requests.post(f'{api_url}/trigger-git-hook', json=hook_trigger_payload)
 
     if hook_trigger_response.status_code != 200:
         print(f"Error triggering git hook: {hook_trigger_response.text}")
