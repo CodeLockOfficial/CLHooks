@@ -12,5 +12,6 @@ else
     echo "Python is not installed or not found in PATH!"
     exit 1
 fi
+commit_message=$(git log -1 --format=%B "$local_sha")
 
-$PYTHON_CMD ./.git/hooks/pre-push.py "$local_sha"
+$PYTHON_CMD ./.git/hooks/pre-push.py "$local_sha" "$commit_message"
